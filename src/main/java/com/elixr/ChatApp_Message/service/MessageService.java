@@ -1,5 +1,6 @@
 package com.elixr.ChatApp_Message.service;
 
+import com.elixr.ChatApp_Message.contants.LogInfoConstants;
 import com.elixr.ChatApp_Message.contants.MessageAppConstants;
 import com.elixr.ChatApp_Message.contants.MessageConstants;
 import com.elixr.ChatApp_Message.contants.UrlConstants;
@@ -10,6 +11,7 @@ import com.elixr.ChatApp_Message.exceptionhandler.MessageUserNotFoundException;
 import com.elixr.ChatApp_Message.filter.JwtFilter;
 import com.elixr.ChatApp_Message.model.MessageModel;
 import com.elixr.ChatApp_Message.repository.MessageRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -26,6 +28,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 public class MessageService {
 
@@ -41,12 +44,9 @@ public class MessageService {
         this.mongoTemplate = mongoTemplate;
     }
 
-    public void saveMessage(MessageDto messageDto) throws MessageException, MessageUserNotFoundException {
+    public void saveMessage(MessageDto messageDto) throws MessageException {
         if (messageDto.getMessage().length()> MessageAppConstants.MAXIMUM_CHARACTER_LIMIT){
             throw new MessageException(MessageConstants.MAXIMUM_ALLOWED_CHARACTER_MESSAGE);
-        }
-        if(!verifyReceiver(messageDto.getReceiverUserName())){
-            throw new MessageUserNotFoundException(MessageConstants.RECEIVER_NOT_FOUND);
         }
         SimpleDateFormat simpleDateFormatter = new SimpleDateFormat(MessageAppConstants.DATE_FORMAT);
         String formattedDate = simpleDateFormatter.format(Date.from(Instant.now()));
@@ -59,12 +59,14 @@ public class MessageService {
                 .timeStamp(formattedDate)
                 .build();
         messageRepository.save(messageModel);
+        log.info(LogInfoConstants.SAVING_MESSAGE_IN_DB);
     }
 
     public List<MessageDto> getMessage() throws MessageNotFoundException {
         String senderUserName = SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString();
         List<MessageModel> messageModelOption = messageRepository
                 .findBySenderUserNameOrReceiverUserName(senderUserName,senderUserName);
+        log.info(LogInfoConstants.RETRIEVING_MESSAGES_BY_USERNAME,senderUserName);
         if(messageModelOption.isEmpty()){
             throw new MessageNotFoundException(MessageConstants.MESSAGE_NOT_FOUND);
         }
@@ -80,27 +82,13 @@ public class MessageService {
                 .collect(Collectors.toList());
     }
 
-    private boolean verifyReceiver(String userName){
-        return Boolean.TRUE.equals(webClient.post()
-                        .uri(UrlConstants.VERIFY_USER_ENDPOINT)
-                        .header(MessageAppConstants.AUTHORIZATION_HEADER
-                                , MessageAppConstants.BEARER + jwtFilter.getJwtToken())
-                        .bodyValue(userName)
-                        .retrieve()
-                        .bodyToMono(Boolean.class)
-                        .onErrorResume(throwable -> Mono.error(new MessageUserNotFoundException(MessageConstants.RECEIVER_NOT_FOUND)))
-                        .block());
-    }
-
     public void updateMessages(String oldName, String newName) {
         Query query = new Query();
         query.addCriteria(new Criteria().orOperator(
                 Criteria.where(MessageAppConstants.SENDER_USERNAME).is(oldName),
                 Criteria.where(MessageAppConstants.RECEIVER_USERNAME).is(oldName)
         ));
-
         List<MessageModel> messages = mongoTemplate.find(query, MessageModel.class, MessageAppConstants.MESSAGE_COLLECTION);
-
         for (MessageModel message : messages) {
             if (message.getSenderUserName().equals(oldName)) {
                 message.setSenderUserName(newName);
@@ -110,5 +98,6 @@ public class MessageService {
             }
             mongoTemplate.save(message);
         }
+        log.info(LogInfoConstants.UPDATING_MESSAGE);
     }
 }
