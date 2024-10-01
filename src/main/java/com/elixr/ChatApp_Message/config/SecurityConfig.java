@@ -1,9 +1,9 @@
 package com.elixr.ChatApp_Message.config;
 
 import com.elixr.ChatApp_Message.contants.MessageAppConstants;
-import com.elixr.ChatApp_Message.contants.UrlConstants;
 import com.elixr.ChatApp_Message.filter.JwtAuthenticationEntryPoint;
 import com.elixr.ChatApp_Message.filter.JwtFilter;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -25,6 +25,13 @@ public class SecurityConfig {
 
     private final JwtFilter jwtFilter;
     private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
+    @Value(MessageAppConstants.UI_URL_VALUE)
+    private String uiBaseurl;
+    @Value(MessageAppConstants.AUTH_URL_VALUE)
+    private String authServiceBaseUrl;
+    @Value(MessageAppConstants.USER_URL_VALUE)
+    private String userServiceBaseUrl;
+
 
     public SecurityConfig(JwtFilter jwtFilter, JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint) {
         this.jwtFilter = jwtFilter;
@@ -48,7 +55,7 @@ public class SecurityConfig {
     public UrlBasedCorsConfigurationSource corsFilter() {
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOrigins(List.of(UrlConstants.UI_URL,UrlConstants.AUTH_SERVICE_URL,UrlConstants.USER_SERVICE_URL)); // Frontend URL
+        config.setAllowedOrigins(List.of(uiBaseurl,authServiceBaseUrl,userServiceBaseUrl)); // Frontend URL
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS")); // Allowed HTTP methods
         config.setAllowedHeaders(List.of(MessageAppConstants.ALLOWED_HEADERS)); // Allowed headers
         config.setAllowCredentials(true);

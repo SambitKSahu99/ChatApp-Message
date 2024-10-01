@@ -3,7 +3,6 @@ package com.elixr.ChatApp_Message.controller;
 import com.elixr.ChatApp_Message.contants.LogInfoConstants;
 import com.elixr.ChatApp_Message.contants.MessageAppConstants;
 import com.elixr.ChatApp_Message.contants.MessageConstants;
-import com.elixr.ChatApp_Message.contants.UrlConstants;
 import com.elixr.ChatApp_Message.dto.MessageDto;
 import com.elixr.ChatApp_Message.exceptionhandler.MessageException;
 import com.elixr.ChatApp_Message.exceptionhandler.MessageNotFoundException;
@@ -34,21 +33,21 @@ public class MessageController {
         this.messageService = messageService;
     }
 
-    @PostMapping(UrlConstants.MESSAGE_ENDPOINT)
+    @PostMapping(MessageAppConstants.MESSAGE_ENDPOINT)
     public ResponseEntity<Response> saveMessage(@RequestBody MessageDto messageDto) throws MessageException, MessageUserNotFoundException {
         messageService.saveMessage(messageDto);
         log.info(MessageConstants.MESSAGE_INSERTION_SUCCESSFUL);
         return new ResponseEntity<>(new Response(MessageConstants.MESSAGE_INSERTION_SUCCESSFUL), HttpStatus.OK);
     }
 
-    @GetMapping(UrlConstants.MESSAGE_ENDPOINT)
+    @GetMapping(MessageAppConstants.MESSAGE_ENDPOINT)
     public ResponseEntity<Response> getMessage() throws MessageNotFoundException {
         List<MessageDto> messagesList = messageService.getMessage();
         log.info(LogInfoConstants.SENDING_ALL_MESSAGES);
         return new ResponseEntity<>(new Response(messagesList),HttpStatus.OK);
     }
 
-    @PutMapping(UrlConstants.MESSAGE_ENDPOINT)
+    @PutMapping(MessageAppConstants.MESSAGE_ENDPOINT)
     public ResponseEntity<String> updateMessages(@RequestParam String oldName,
                                                  @RequestParam String newName){
         messageService.updateMessages(oldName,newName);
