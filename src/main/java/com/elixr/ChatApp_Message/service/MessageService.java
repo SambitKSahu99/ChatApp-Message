@@ -3,12 +3,9 @@ package com.elixr.ChatApp_Message.service;
 import com.elixr.ChatApp_Message.contants.LogInfoConstants;
 import com.elixr.ChatApp_Message.contants.MessageAppConstants;
 import com.elixr.ChatApp_Message.contants.MessageConstants;
-import com.elixr.ChatApp_Message.contants.UrlConstants;
 import com.elixr.ChatApp_Message.dto.MessageDto;
 import com.elixr.ChatApp_Message.exceptionhandler.MessageException;
 import com.elixr.ChatApp_Message.exceptionhandler.MessageNotFoundException;
-import com.elixr.ChatApp_Message.exceptionhandler.MessageUserNotFoundException;
-import com.elixr.ChatApp_Message.filter.JwtFilter;
 import com.elixr.ChatApp_Message.model.MessageModel;
 import com.elixr.ChatApp_Message.repository.MessageRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -17,8 +14,6 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
-import org.springframework.web.reactive.function.client.WebClient;
-import reactor.core.publisher.Mono;
 
 import java.text.SimpleDateFormat;
 import java.time.Instant;
@@ -33,14 +28,10 @@ import java.util.stream.Collectors;
 public class MessageService {
 
     private final MessageRepository messageRepository;
-    private final WebClient webClient;
-    private final JwtFilter jwtFilter;
     private final MongoTemplate mongoTemplate;
 
-    public MessageService(MessageRepository messageRepository, WebClient.Builder webClientBuilder, JwtFilter jwtFilter, MongoTemplate mongoTemplate) {
+    public MessageService(MessageRepository messageRepository, MongoTemplate mongoTemplate) {
         this.messageRepository = messageRepository;
-        this.webClient = webClientBuilder.baseUrl(UrlConstants.USER_SERVICE_URL).build();
-        this.jwtFilter = jwtFilter;
         this.mongoTemplate = mongoTemplate;
     }
 

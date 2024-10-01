@@ -2,7 +2,6 @@ package com.elixr.ChatApp_Message.filter;
 
 import com.elixr.ChatApp_Message.contants.LogInfoConstants;
 import com.elixr.ChatApp_Message.contants.MessageAppConstants;
-import com.elixr.ChatApp_Message.contants.UrlConstants;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -10,6 +9,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.MDC;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -29,10 +29,12 @@ public class JwtFilter extends OncePerRequestFilter {
     private final WebClient webClient;
     @Getter
     private String jwtToken;
+    @Value(MessageAppConstants.AUTH_URL_VALUE)
+    private String authServiceBaseUrl;
 
 
     public JwtFilter(WebClient.Builder webClientBuilder) {
-        this.webClient = webClientBuilder.baseUrl(UrlConstants.AUTH_SERVICE_URL).build();
+        this.webClient = webClientBuilder.build();
     }
 
     @Override
@@ -46,7 +48,7 @@ public class JwtFilter extends OncePerRequestFilter {
             if (StringUtils.hasText(token)) {
                 log.info(LogInfoConstants.CALLING_AUTH_SERVICE);
                 String userName = webClient.post()
-                        .uri(UrlConstants.VERIFY_TOKEN_ENDPOINT)
+                        .uri(authServiceBaseUrl+MessageAppConstants.VERIFY_TOKEN_ENDPOINT)
                         .header(MessageAppConstants.AUTHORIZATION_HEADER
                                 , MessageAppConstants.BEARER + token)
                         .retrieve()
