@@ -10,8 +10,6 @@ import com.elixr.ChatApp_Message.model.MessageModel;
 import com.elixr.ChatApp_Message.repository.MessageRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.data.mongodb.core.query.Criteria;
-import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
@@ -71,24 +69,5 @@ public class MessageService {
                         .senderUserName(messageModel.getSenderUserName())
                         .build())
                 .collect(Collectors.toList());
-    }
-
-    public void updateMessages(String oldName, String newName) {
-        Query query = new Query();
-        query.addCriteria(new Criteria().orOperator(
-                Criteria.where(MessageAppConstants.SENDER_USERNAME).is(oldName),
-                Criteria.where(MessageAppConstants.RECEIVER_USERNAME).is(oldName)
-        ));
-        List<MessageModel> messages = mongoTemplate.find(query, MessageModel.class, MessageAppConstants.MESSAGE_COLLECTION);
-        for (MessageModel message : messages) {
-            if (message.getSenderUserName().equals(oldName)) {
-                message.setSenderUserName(newName);
-            }
-            if (message.getReceiverUserName().equals(oldName)) {
-                message.setReceiverUserName(newName);
-            }
-            mongoTemplate.save(message);
-        }
-        log.info(LogInfoConstants.UPDATING_MESSAGE);
     }
 }
