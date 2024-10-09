@@ -11,9 +11,7 @@ public class MessageAppConstants {
     public static final String MESSAGE_COLLECTION = "messages";
     public static final int MAXIMUM_CHARACTER_LIMIT = 250;
     public static final String REGISTERED_CORS_PATTERN = "/**";
-    public static final String SENDER_USERNAME = "senderUserName";
     public static final String SERVER_ERROR = "Server Error: ";
-    public static final String RECEIVER_USERNAME = "receiverUserName";
     public static final String VERIFY_TOKEN_ENDPOINT = "/verifyToken";
     public static final String MESSAGE_ENDPOINT = "/message";
     private static final String AUTH_BASEURL = "auth.baseurl";
