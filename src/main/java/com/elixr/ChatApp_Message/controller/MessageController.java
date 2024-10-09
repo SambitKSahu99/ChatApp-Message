@@ -12,8 +12,6 @@ import com.elixr.ChatApp_Message.service.MessageService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -45,13 +43,5 @@ public class MessageController {
         List<MessageDto> messagesList = messageService.getMessage();
         log.info(LogInfoConstants.SENDING_ALL_MESSAGES);
         return new ResponseEntity<>(new Response(messagesList),HttpStatus.OK);
-    }
-
-    @PutMapping(MessageAppConstants.MESSAGE_ENDPOINT)
-    public ResponseEntity<String> updateMessages(@RequestParam String oldName,
-                                                 @RequestParam String newName){
-        messageService.updateMessages(oldName,newName);
-        log.info(LogInfoConstants.MESSAGES_UPDATED,newName);
-        return new ResponseEntity<>(MessageConstants.UPDATED_SUCCESSFULLY,HttpStatus.OK);
     }
 }
