@@ -14,6 +14,8 @@ public class MessageAppConstants {
     public static final String SERVER_ERROR = "Server Error: ";
     public static final String VERIFY_TOKEN_ENDPOINT = "/verifyToken";
     public static final String MESSAGE_ENDPOINT = "/message";
+    private static final String KEY = "secret.key";
+    public static final String SECRET_KEY = "${"+KEY+"}";
     private static final String AUTH_BASEURL = "auth.baseurl";
     public static final String AUTH_URL_VALUE = "${"+AUTH_BASEURL +"}";
     private static final String UI_BASEURL = "ui.baseurl";

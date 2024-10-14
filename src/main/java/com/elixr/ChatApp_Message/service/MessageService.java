@@ -6,10 +6,10 @@ import com.elixr.ChatApp_Message.contants.MessageConstants;
 import com.elixr.ChatApp_Message.dto.MessageDto;
 import com.elixr.ChatApp_Message.exceptionhandler.MessageException;
 import com.elixr.ChatApp_Message.exceptionhandler.MessageNotFoundException;
+import com.elixr.ChatApp_Message.filter.JwtFilter;
 import com.elixr.ChatApp_Message.model.MessageModel;
 import com.elixr.ChatApp_Message.repository.MessageRepository;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
@@ -26,11 +26,11 @@ import java.util.stream.Collectors;
 public class MessageService {
 
     private final MessageRepository messageRepository;
-    private final MongoTemplate mongoTemplate;
+    private final JwtFilter jwtFilter;
 
-    public MessageService(MessageRepository messageRepository, MongoTemplate mongoTemplate) {
+    public MessageService(MessageRepository messageRepository, JwtFilter jwtFilter) {
         this.messageRepository = messageRepository;
-        this.mongoTemplate = mongoTemplate;
+        this.jwtFilter = jwtFilter;
     }
 
     public void saveMessage(MessageDto messageDto) throws MessageException {
@@ -39,7 +39,7 @@ public class MessageService {
         }
         SimpleDateFormat simpleDateFormatter = new SimpleDateFormat(MessageAppConstants.DATE_FORMAT);
         String formattedDate = simpleDateFormatter.format(Date.from(Instant.now()));
-        String senderUserName = SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString();
+        String senderUserName = jwtFilter.getCurrentUser();
         MessageModel messageModel = MessageModel.builder()
                 .id(UUID.randomUUID())
                 .senderUserName(senderUserName)
@@ -52,7 +52,7 @@ public class MessageService {
     }
 
     public List<MessageDto> getMessage() throws MessageNotFoundException {
-        String senderUserName = SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString();
+        String senderUserName = jwtFilter.getCurrentUser();
         List<MessageModel> messageModelOption = messageRepository
                 .findBySenderUserNameOrReceiverUserName(senderUserName,senderUserName);
         log.info(LogInfoConstants.RETRIEVING_MESSAGES_BY_USERNAME,senderUserName);
